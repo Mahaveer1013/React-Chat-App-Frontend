@@ -31,7 +31,7 @@ export default function LoginForm() {
             try {
                 auth.setLoading(true);
                 let url = auth.url;
-                const response = await fetch(`http://${url}:5000/api/login`, {
+                const response = await fetch(`${url}/api/login`, {
                     method: 'POST',
                     headers: {
                         'Content-Type':'application/json'

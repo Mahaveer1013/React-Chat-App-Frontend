@@ -8,6 +8,43 @@ import { AuthContext } from "../pages/Main"
 export default function ProfileBar() {
     const auth = useContext(AuthContext);
 
+    async function handleModifyFav() {
+        try {
+          let url = auth.url;
+          const response = await fetch(`${url}/api/modify_favorite`, {
+            method: auth.visitorDet.isFav ? 'DELETE' : 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + auth.token
+            },
+            body: JSON.stringify(auth.visitorDet._id)
+          });
+          if (!response.ok) {
+            auth.setFlash(['Backend Error', 'error']);
+            throw new Error('failed to send data to backend');
+          }
+          // const responseData = await response.json();
+          auth.setVisitorDet(prevState => ({
+            ...prevState,
+            isFav: !auth.visitorDet['isFav']
+          }))
+          auth.setFavUsers(prev => {
+            let updatedFav = []
+            auth.visitorDet.isFav 
+              ? (prev.forEach(element => {
+                element['_id'] != auth.visitorDet['_id'] && updatedFav.push(element)
+              }))
+              : updatedFav = [...prev, auth.visitorDet]
+            // console.log(updatedFav);
+            return updatedFav
+          });
+          // console.log(responseData);
+          // auth.setFlash([responseData.message, responseData.success]);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+
     return (<div className="fcc profile-bar">
         <div className="profile-close" onClick={()=>(auth.setIsProfile(false))}>
             <FontAwesomeIcon icon={faClose} />
@@ -33,7 +70,10 @@ export default function ProfileBar() {
             </div>
             <div className="profile-options">
                 <ul>
-                    <li>Add To Favourites</li>
+                    {auth.visitorDet.isFav ? 
+                        <li onClick={handleModifyFav} > Remove From Favourites</li>
+                        : <li onClick={handleModifyFav} > Add To Favourites</li>
+                    }
                     <li>Delete This Contact</li>
                     <li>Block This Contact</li>
                 </ul>

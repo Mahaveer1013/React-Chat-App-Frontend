@@ -17,19 +17,19 @@ export default function Chat() {
   const chatContainerRef = useRef(null);
 
   let url = auth.url;
-  const socket = io(`http://${url}:5000`, {
+  const socket = io(`${url}`, {
     extraHeaders: {
       Authorization: 'Bearer '+auth.token
     }
   });
 
-  // const socket = io(`http://${url}:5000`)
   
   function handleChange(e) {
     setMessage(e.target.value)
   }
 
   useEffect(() => {
+    setChats([])
     getChats(id)
   },[id])
   
@@ -37,7 +37,7 @@ export default function Chat() {
     try {
       auth.setLoading(true)
         let url = auth.url;
-        const response = await fetch(`http://${url}:5000/api/get_chats`, {
+        const response = await fetch(`${url}/api/get_chats`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -49,7 +49,7 @@ export default function Chat() {
         throw new Error('failed to send data to backend')
       }
       const responseData = await response.json();
-      setChats([...responseData])
+      responseData && setChats([...responseData])
     } catch (error) {
       console.log(error);
     } finally {
@@ -66,7 +66,7 @@ export default function Chat() {
   async function checkUser(id) {
     if (id) {
         let url = auth.url;
-        const response = await fetch(`http://${url}:5000/api/get_user_details`, {
+        const response = await fetch(`${url}/api/get_user_details`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -83,7 +83,8 @@ export default function Chat() {
           _id: responseData['_id'],
           username: responseData['username'],
           email: responseData['email'],
-          dp: responseData['dp']
+          dp: responseData['dp'],
+          isFav: responseData['isFav']
         })
         setUserName(responseData.username)
       }
@@ -115,10 +116,9 @@ export default function Chat() {
         receiver_id: id,
         message: message
       }
-      console.log(messageDet);
       socket.emit('send_message', messageDet)
+      setMessage('')
       
-      // setMessage('')
   }
   
   socket.on('message_received', data => {
@@ -139,8 +139,7 @@ export default function Chat() {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   };
-
-    
+  
     return (
       <>
         <Header username={username} isMyProfile={true} />

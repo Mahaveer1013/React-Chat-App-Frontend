@@ -45,8 +45,8 @@ export default function SignupForm() {
             try {
                 auth.setLoading(true);
                 let url = auth.url;
-                console.log(`http://${url}:5000/api/signup`);
-                const responseData = await fetch(`http://${url}:5000/api/signup`, {
+                console.log(`${url}/api/signup`);
+                const responseData = await fetch(`${url}/api/signup`, {
                     method: 'POST',
                     headers: {
                     'Content-Type': 'application/json'

@@ -6,34 +6,31 @@ import { NavLink, useNavigate } from "react-router-dom";
 
 function ChatList() {
   
-  let [FavUsers,setFavUsers] = useState([]);
-  let [DmUsers,setDmUsers] = useState([]);
-  let [ChannelUsers,setChannelUsers] = useState([]);
   const auth = useContext(AuthContext);
 
   useEffect(() => {
     // console.log(auth.userDet)
-    getUsers(auth.userDet._id);
+    getUsers();
   }, [])
   
-  async function getUsers(id) {
+  async function getUsers() {
     try {
         auth.setLoading(true)
         let url = auth.url;
-        const response = await fetch(`http://${url}:5000/api/get_users`, {
-        method: 'POST',
+        const response = await fetch(`${url}/api/get_users`, {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + auth.token
         },
-        body : JSON.stringify(id)
       })
       if (!response.ok) {
         throw new Error ('Error sending data to backend')
       }
       const responseData = await response.json()
       console.log(responseData);
-      setDmUsers([...responseData])
+      auth.setDmUsers([...responseData.users])
+      auth.setFavUsers([...responseData.favorites])
     } catch (error) {
       console.log(error);
     } finally {
@@ -60,7 +57,7 @@ function ChatList() {
     navigate("user-profile/"+id)
   }
   
-  const Fav = FavUsers.map((fav) => {
+  const Fav = auth.FavUsers.map((fav) => {
     return (
         <li className="cl-favs cl-li" key={fav._id} onClick={()=>handleOpenUser(fav._id)} >
           <div className="cl--dp-div">
@@ -70,7 +67,7 @@ function ChatList() {
         </li>
     )
   })
-  const Dm = DmUsers.map((dm) => {
+  const Dm = auth.DmUsers.map((dm) => {
     return (
                   <li className="cl-dm cl-li" key={dm._id} onClick={()=>handleOpenUser(dm._id)} >
                     <div className="cl--dp-div">
@@ -80,7 +77,7 @@ function ChatList() {
                   </li>
     )
   })
-  const Channel = ChannelUsers.map((channel) => {
+  const Channel = auth.ChannelUsers.map((channel) => {
     return (
                   <li className="cl-channel cl-li" key={channel._id} onClick={()=>handleOpenUser(channel._id)} >
                     <div className="cl--dp-div">

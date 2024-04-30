@@ -14,7 +14,7 @@ import LoginCheck from "../assets/LoginCheck";
 export const AuthContext = createContext();
 
 export default function Main() {
-    let url = window.location.hostname;
+    let url = 'http://localhost:5000';
     const [loading, setLoading] = useState(true); // Initially set loading to true
     const [flash, setFlash] = useState([null, null]);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -29,12 +29,16 @@ export default function Main() {
         username: null,
         email: null,
         dp: null,
+        isFav: null
     });
     const [isProfile, setIsProfile] = useState(false)
     const [isChatList, setIsChatList] = useState(false)
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
     const token = localStorage.getItem('token');
-
+    let [FavUsers,setFavUsers] = useState([]);
+    let [DmUsers,setDmUsers] = useState([]);
+    let [ChannelUsers, setChannelUsers] = useState([]);
+    
     useEffect(() => {
         const handleResize = () => {
           setWindowWidth(window.innerWidth);
@@ -75,7 +79,7 @@ export default function Main() {
 
     async function fetchUserDet(token) {
         try {
-                const response = await fetch(`http://${url}:5000/api/getCurrentUser`, {
+                const response = await fetch(`${url}/api/getCurrentUser`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -97,14 +101,15 @@ export default function Main() {
         } catch (error) {
             console.error('Error fetching user data:', error);
         } finally {
-            setLoading(false); // No matter what, stop loading when fetch is done
+            setLoading(false); 
         }
     }
 
     const auth = {
         userDet, isAuthenticated, Login, Logout, setLoading,
         setFlash, isProfile, setIsProfile, setIsChatList,setUserDet,
-        isChatList, windowWidth, token, visitorDet, setVisitorDet, url
+        isChatList, windowWidth, token, visitorDet, setVisitorDet, url,
+        FavUsers, setFavUsers, DmUsers, setDmUsers, ChannelUsers, setChannelUsers
     };
 
     return (
